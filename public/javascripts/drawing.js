@@ -77,7 +77,9 @@ $(document).ready(function(){
     }
 
     function drawGrid(){
-        ctx.strokeStyle="black";
+        ctx.fillStyle="white";
+        ctx.fillRect(0,0,canvW,canvH)
+        ctx.strokeStyle="#50514f";
         ctx.lineWidth= 0.1;
         //vertical
         for (var i= 0; i<=canvH; i+=cellSize){
@@ -96,8 +98,8 @@ $(document).ready(function(){
             ctx.closePath();
         }
         if (!lifeHasBegun){
-            ctx.strokeStyle="black";
-            ctx.lineWidth= 1;
+            ctx.strokeStyle="#50514f";
+            ctx.lineWidth= 0.5;
             ctx.beginPath();
             ctx.moveTo(canvW/2,0);
             ctx.lineTo(canvW/2,canvH);

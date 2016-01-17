@@ -10,7 +10,7 @@ module.exports.getRouter = function(io){
 
 	var roomIdCount = 0;
 	var userCount = 1;
-	var horizontalCellNum = 80;
+	var horizontalCellNum = 70;
 	var verticalCellNum = 50;
 	var initialPlacableCellAmount = 30;
 	var activeRooms = {'room0': generateRoom() };
@@ -35,7 +35,7 @@ module.exports.getRouter = function(io){
 				socket.data.side = "right";
 			}
 			activeRooms[assignedRoom].species[activeRooms[assignedRoom].species.length] = socket.data;
-			socket.emit('roomJoined',{species: activeRooms[assignedRoom].species, world: generateBlankWorld(horizontalCellNum,verticalCellNum), id: socket.data.id, username: socket.data.username});
+			socket.emit('roomJoined',{species: activeRooms[assignedRoom].species, world: generateBlankWorld(horizontalCellNum,verticalCellNum), id: socket.data.id});
 			socket.broadcast.to(assignedRoom).emit('newSpeciesJoined',{species: activeRooms[assignedRoom].species, world: generateBlankWorld(horizontalCellNum,verticalCellNum)});
 			socket.on('disconnect',function(){
 				if (activeRooms[assignedRoom] !== undefined){
@@ -56,23 +56,25 @@ module.exports.getRouter = function(io){
 		});
 
 		socket.on('readyToPlay',function(data){
-			if (!activeRooms[socket.data.room].lifeStarted){
-				socket.data.readyToPlay = true;
-				copyWorldHalf(socket.data.side,activeRooms[socket.data.room].world,data.world,horizontalCellNum,verticalCellNum);
-				var allReadyToPlay = true;
-				for (var i = 0; i < activeRooms[socket.data.room].species.length; i++){
-					if (activeRooms[socket.data.room].species[i].id === socket.id){
-						//TODO: Check whether this is even neccesary or if aliasing takes care of it.
-						activeRooms[socket.data.room].species[i].readyToPlay = socket.data.readyToPlay;
+			if (activeRooms[socket.data.room] !== undefined){
+				if (!activeRooms[socket.data.room].lifeStarted){
+					socket.data.readyToPlay = true;
+					copyWorldHalf(socket.data.side,activeRooms[socket.data.room].world,data.world,horizontalCellNum,verticalCellNum);
+					var allReadyToPlay = true;
+					for (var i = 0; i < activeRooms[socket.data.room].species.length; i++){
+						if (activeRooms[socket.data.room].species[i].id === socket.id){
+							//TODO: Check whether this is even neccesary or if aliasing takes care of it.
+							activeRooms[socket.data.room].species[i].readyToPlay = socket.data.readyToPlay;
+						}
+						allReadyToPlay = allReadyToPlay && activeRooms[socket.data.room].species[i].readyToPlay;
 					}
-					allReadyToPlay = allReadyToPlay && activeRooms[socket.data.room].species[i].readyToPlay;
+					if (allReadyToPlay && (activeRooms[socket.data.room].species.length == 2)){
+						activeRooms[socket.data.room].allReadyToPlay = true;
+						activeRooms[socket.data.room].lifeStarted = true;
+						sendUpdatedWorld(socket.data.room);
+					}
 				}
-				if (allReadyToPlay && (activeRooms[socket.data.room].species.length == 2)){
-					activeRooms[socket.data.room].allReadyToPlay = true;
-					activeRooms[socket.data.room].lifeStarted = true;
-					sendUpdatedWorld(socket.data.room);
-				}
-			}
+		}
 		});
 	});
 

@@ -28,7 +28,7 @@ $(document).ready(function(){
             socket.emit('joinRoom',player);
             $(".landing").hide();
             $('.game').show();
-            drawFrame();
+            drawGrid();
         }
     });
     
@@ -53,6 +53,7 @@ $(document).ready(function(){
     });
 
     socket.on("allSpeciesReady",function(data){
+        console.log(data);
         world = data.world;
         drawFrame();
     });

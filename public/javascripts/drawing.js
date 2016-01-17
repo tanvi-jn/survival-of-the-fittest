@@ -22,21 +22,37 @@ $(document).ready(function(){
     });
 
     $(".join").on('mousedown',function(){
+        if (playerColour !== undefined){
             player = {name:$("#playerNameInput").val(),colour:playerColour};
             console.log(player);
             socket.emit('joinRoom',player);
             $(".landing").hide();
             $('.game').show();
-        });
+        }
+    });
+
+    
 
     socket.on('roomJoined',function(data){
+        console.log(data);
         playerId = data.id;
         species = data.species;
         world = data.world;
-        console.log(data);
+        playerSide = getSpecies(playerId).side;
+        console.log(".ready-"+playerSide);
+
+        $(".ready-"+playerSide).on('mousedown',function(){
+            console.log("clicked");
+            socket.emit("readyToPlay",{world:world});
+        });
     });
+
     socket.on('newSpeciesJoined',function(data){
+        console.log(data);
         species = data.species;
+    });
+
+    socket.on("allSpeciesReady",function(data){
         world = data.world;
     });
     //socket.on('readyToPlay',)
@@ -46,14 +62,9 @@ $(document).ready(function(){
     canvas.addEventListener("mousedown", onCanvasClick, false);
 
     function getSpecies(id){
-        console.log(id);
         for (var i = 0; i < species.length; i++){
-            console.log(species[i].id);
             if (species[i].id === id){
                 return species[i];
-            }
-            else{
-                return 
             }
         }
     }
@@ -111,9 +122,10 @@ $(document).ready(function(){
         mouse.x = e.clientX - rect.left; //from world coords -> canvas coords
         mouse.y = e.clientY - rect.top;
         console.log("x: "+mouse.x+", y: "+mouse.y);
+        //console.log(playerSide);
         //check if mouse click is within canvas, *(and on correct half of screen)
         if (0 <= mouse.y && mouse.y <= canvH && 0 <= mouse.x ){
-            if(mouse.x <= canvW && lifeHasBegun || mouse.x <= canvW/2 && !lifeHasBegun){
+            if(mouse.x <= canvW/2 && playerSide==="left" || mouse.x > canvW/2 && playerSide==="right"){
                 editCell(mouse);
             }
         }

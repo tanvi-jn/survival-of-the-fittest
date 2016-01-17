@@ -37,6 +37,13 @@ module.exports.getRouter = function(io){
 			activeRooms[assignedRoom].species[activeRooms[assignedRoom].species.length] = socket.data;
 			socket.emit('roomJoined',{species: activeRooms[assignedRoom].species, world: activeRooms[assignedRoom].world, id: socket.data.id});
 			socket.broadcast.to(assignedRoom).emit('newSpeciesJoined',{species: activeRooms[assignedRoom].species, world: activeRooms[assignedRoom].world});
+			socket.on('disconnect',function(){
+				for (var i = 0; i < activeRooms[assignedRoom].species.length;i++){
+					activeRooms[assignedRoom].species.splice(i,1);
+				}
+				socket.broadcast.to(assignedRoom).emit('speciesDisconnected',socket.data.id);
+				socket.leave(socket.data.room);
+			});
 		});
 
 		socket.on('readyToPlay',function(data){
@@ -52,13 +59,14 @@ module.exports.getRouter = function(io){
 			}
 			if (allReadyToPlay){
 				io.sockets.in(socket.data.room).emit('allSpeciesReady',{world: activeRooms[socket.data.room].world});
+				activeRooms[socket.data.room].allReadyToPlay = true;
 				sendUpdatedWorld(socket.data.room);
 			}
 		});
 	});
 
 	function generateRoom(){
-		return {species: [], world: generateBlankWorld(horizontalCellNum,verticalCellNum)};
+		return {species: [], world: generateBlankWorld(horizontalCellNum,verticalCellNum), allReadyToPlay: false};
 	}
 
 	function generateBlankWorld(horizontalCellNum,verticalCellNum){

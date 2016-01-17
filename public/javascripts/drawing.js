@@ -14,6 +14,7 @@ $(document).ready(function(){
     var playerId;
     var playerSide;
     var lifeHasBegun = false;
+    var cellsLeft;
 
     $(".colourBlock").on('mousedown',function(){
         //console.log(colour);
@@ -37,13 +38,15 @@ $(document).ready(function(){
         console.log(data);
         playerId = data.id;
         species = data.species;
+        cellsLeft = species.cellsLeft;
         world = data.world;
         playerSide = getSpecies(playerId).side;
         console.log(".ready-"+playerSide);
-
+        $(".playerName"+playerSide).innerHTML=data.name;
         $(".ready-"+playerSide).on('mousedown',function(){
             console.log("clicked");
-            socket.emit("readyToPlay",{world:world});
+            if (!ready) socket.emit("readyToPlay",{world:world});
+            var ready = true;
         });
     });
 
@@ -96,10 +99,10 @@ $(document).ready(function(){
             ctx.closePath();
         }
         ctx.strokeStyle="red";
-        ctx.lineWidth= 1;
+        ctx.lineWidth= 0.5;
         ctx.beginPath();
-        ctx.moveTo(canvW*cellSize/2,0);
-        ctx.lineTo(canvW*cellSize/2,canvH);
+        ctx.moveTo(canvW/2,0);
+        ctx.lineTo(canvW/2,canvH);
         ctx.stroke();
         ctx.closePath();
 

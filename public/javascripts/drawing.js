@@ -57,6 +57,11 @@ $(document).ready(function(){
         world = data.world;
         drawFrame();
     });
+
+    socket.on("worldUpdated",function(data){
+        world = data.world;
+        drawFrame();
+    });
     //socket.on('readyToPlay',)
     //let them place stuff on their half
     //send newly placed world back when they click ready

@@ -12,6 +12,7 @@ $(document).ready(function(){
     var playerName;
     var playerColour;
     var playerId;
+    var playerSide;
     var lifeHasBegun = false;
 
     $(".colourBlock").on('mousedown',function(){
@@ -32,6 +33,7 @@ $(document).ready(function(){
         playerId = data.id;
         species = data.species;
         world = data.world;
+        console.log(data);
     });
     socket.on('newSpeciesJoined',function(data){
         species = data.species;
@@ -43,7 +45,21 @@ $(document).ready(function(){
 
     canvas.addEventListener("mousedown", onCanvasClick, false);
 
+    function getSpecies(id){
+        console.log(id);
+        for (var i = 0; i < species.length; i++){
+            console.log(species[i].id);
+            if (species[i].id === id){
+                return species[i];
+            }
+            else{
+                return 
+            }
+        }
+    }
+
     function drawGrid(){
+        ctx.strokeStyle="black";
         ctx.lineWidth= 0.1;
         //vertical
         for (var i= 0; i<=canvH; i+=cellSize){
@@ -61,22 +77,21 @@ $(document).ready(function(){
             ctx.stroke();
             ctx.closePath();
         }
-        if (!lifeHasBegun){
-            ctx.strokeStyle="red";
-            ctx.beginPath();
-            ctx.moveTo(canvW/2,0);
-            ctx.lineTo(canvW/2,canvH);
-            ctx.stroke();
-            ctx.closePath();
+        ctx.strokeStyle="red";
+        ctx.lineWidth= 1;
+        ctx.beginPath();
+        ctx.moveTo(canvW*cellSize/2,0);
+        ctx.lineTo(canvW*cellSize/2,canvH);
+        ctx.stroke();
+        ctx.closePath();
 
-        }
     }
       
     function drawCells(){
         for (var i=0; i<world.length; i++){
             for (var j=0; j<world[0].length; j++){
                 if (world[i][j]!=0){ //if cell is alive
-                    //ctx.fillStyle=species[world[i][j]]; //grab colour
+                    ctx.fillStyle=getSpecies(world[i][j]).colour; //grab colour
                     ctx.fillRect(i*cellSize,j*cellSize,cellSize,cellSize); //draw
                 }   
             }
@@ -89,15 +104,6 @@ $(document).ready(function(){
         drawCells();
     }
 //move the following code into the interface file
-
-    function getPlayerNameAndColour(){
-        $('button').prop('disabled', false);
-        $("#join").on('click',function(){ //when player hits join button
-            var colour = $("#colour").val(); //colour string
-            socket.emit('playerJoined',colour); //send colour to backend
-        });
-        var playerName = $("#pName").val();
-    }
 
     function onCanvasClick(e){
         var rect = canvas.getBoundingClientRect(); //dimensions of canvas
@@ -119,8 +125,8 @@ $(document).ready(function(){
         var x =Math.floor((mouse.x)/cellSize);
         var y =Math.floor((mouse.y)/cellSize);
         console.log(x+","+y);
-        if (world[x][y]==1) world[x][y] = 0;
-        else world[x][y] = 1;
+        if (world[x][y]!=0) world[x][y] = 0;
+        else world[x][y] = playerId;
     }
     //
 

@@ -17,7 +17,6 @@ module.exports.getRouter = function(io){
 
 	io.sockets.on('connection', function(socket){
 		socket.on('joinRoom',function(data){
-			console.log(data);
 			socket.data = {};
 			socket.data.id = userCount++;
 			socket.data.username = data.username;
@@ -118,7 +117,6 @@ module.exports.getRouter = function(io){
 					}
 					totalNeighbourCount += countForSpecies;
 				}
-
 				if (totalNeighbourCount < 2 || totalNeighbourCount > 3){
 					worldToReturn[i][j]=0;
 				}
@@ -133,7 +131,7 @@ module.exports.getRouter = function(io){
 		return worldToReturn;
 	}
 	function sendUpdatedWorld(room){
-		activeRooms[room].world = updateWorld(activeRooms[room].world);
+		activeRooms[room].world = updateWorld(activeRooms[room].world,room);
 		io.sockets.in(room).emit('worldUpdated',activeRooms[room].world);
 		setTimeout(sendUpdatedWorld,250,room);
 	}

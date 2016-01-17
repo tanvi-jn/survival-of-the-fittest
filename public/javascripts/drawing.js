@@ -30,21 +30,25 @@ $(document).ready(function(){
             $('.game').show();
             drawGrid();
         }
-    });
-    
+    }); 
 
     socket.on('roomJoined',function(data){
         console.log(data);
         playerId = data.id;
         species = data.species;
         cellsLeft = getSpecies(playerId).cellsLeft;
-        console.log("cells left: "+cellsLeft);
         world = data.world;
         playerSide = getSpecies(playerId).side;
-        console.log(getSpecies(playerId).username);
+        $(".numCellsLeft").text(cellsLeft);
         $(".playerName"+playerSide).text(getSpecies(playerId).username);
+        if (species.length>1){
+            var newSpecies = species[0];
+            $(".playerName"+newSpecies.side).text(newSpecies.username);
+        }
+
         $(".ready-"+playerSide).on('mousedown',function(){
             $(this).hide();
+            $(".cellsLeft").hide();
             if (!ready) socket.emit("readyToPlay",{world:world});
             readyToPlay = true;
         });
@@ -53,6 +57,8 @@ $(document).ready(function(){
     socket.on('newSpeciesJoined',function(data){
         console.log(data);
         species = data.species;
+        var newSpecies = species[1];
+        $(".playerName"+newSpecies.side).text(newSpecies.username);
     });
 
     socket.on("worldUpdated",function(data){
@@ -60,10 +66,6 @@ $(document).ready(function(){
         world = data.world;
         drawFrame();
     });
-    //socket.on('readyToPlay',)
-    //let them place stuff on their half
-    //send newly placed world back when they click ready
-
     canvas.addEventListener("mousedown", onCanvasClick, false);
 
     function getSpecies(id){
@@ -131,10 +133,8 @@ $(document).ready(function(){
         console.log("x: "+mouse.x+", y: "+mouse.y);
         //console.log(playerSide);
         //check if mouse click is within canvas, *(and on correct half of screen)
-        if (0 <= mouse.y && mouse.y <= canvH && 0 <= mouse.x && cellsLeft>0 && !readyToPlay){
+        if (0 <= mouse.y && mouse.y <= canvH && 0 <= mouse.x && !readyToPlay){
             if(mouse.x <= canvW/2 && playerSide==="left" || mouse.x > canvW/2 && playerSide==="right"){
-                cellsLeft--;
-                console.log("cells left: "+cellsLeft);
                 editCell(mouse);
             }
         }
@@ -147,7 +147,11 @@ $(document).ready(function(){
         var y =Math.floor((mouse.y)/cellSize);
         console.log(x+","+y);
         if (world[x][y]!=0) world[x][y] = 0;
-        else world[x][y] = playerId;
+        else if(cellsLeft>0){
+            cellsLeft--;
+            $(".numCellsLeft").text(cellsLeft);
+            world[x][y] = playerId;
+        }
     }
     //
 

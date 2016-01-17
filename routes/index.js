@@ -35,11 +35,20 @@ module.exports.getRouter = function(io){
 				socket.data.side = "right";
 			}
 			activeRooms[assignedRoom].species[activeRooms[assignedRoom].species.length] = socket.data;
-			socket.emit('roomJoined',{species: activeRooms[assignedRoom].species, world: generateBlankWorld(horizontalCellNum,verticalCellNum), id: socket.data.id});
+			socket.emit('roomJoined',{species: activeRooms[assignedRoom].species, world: generateBlankWorld(horizontalCellNum,verticalCellNum), id: socket.data.id, username: socket.data.username});
 			socket.broadcast.to(assignedRoom).emit('newSpeciesJoined',{species: activeRooms[assignedRoom].species, world: generateBlankWorld(horizontalCellNum,verticalCellNum)});
 			socket.on('disconnect',function(){
-				for (var i = 0; i < activeRooms[assignedRoom].species.length;i++){
-					activeRooms[assignedRoom].species.splice(i,1);
+				if (activeRooms[assignedRoom] !== undefined){
+					for (var i = 0; i < activeRooms[assignedRoom].species.length;i++){
+						activeRooms[assignedRoom].species.splice(i,1);
+					}
+					if (activeRooms[assignedRoom].species.length === 0 || activeRooms[assignedRoom].lifeStarted){
+						socket.broadcast.to(assignedRoom).emit('lifeOver');
+						delete activeRooms[assignedRoom];
+						if (assignedRoom === ('room' + roomIdCount)){
+							activeRooms['room' + (++roomIdCount)] = generateRoom();
+						}
+					}
 				}
 				socket.broadcast.to(assignedRoom).emit('speciesDisconnected',socket.data.id);
 				socket.leave(socket.data.room);
@@ -119,6 +128,7 @@ module.exports.getRouter = function(io){
 					}
 					totalNeighbourCount += countForSpecies;
 				}
+
 				if (totalNeighbourCount < 2 || totalNeighbourCount > 3){
 					worldToReturn[i][j]=0;
 				}
@@ -133,9 +143,13 @@ module.exports.getRouter = function(io){
 		return worldToReturn;
 	}
 	function sendUpdatedWorld(room){
-		activeRooms[room].world = updateWorld(activeRooms[room].world,room);
-		io.sockets.in(room).emit('worldUpdated',{world: activeRooms[room].world});
-		setTimeout(sendUpdatedWorld,250,room);
+		if (activeRooms[room] !== undefined){
+		if (activeRooms[room].lifeStarted){
+			activeRooms[room].world = updateWorld(activeRooms[room].world,room);
+			io.sockets.in(room).emit('worldUpdated',{world: activeRooms[room].world});
+			setTimeout(sendUpdatedWorld,150,room);
+		}
+		}
 	}
 	return router;
 };

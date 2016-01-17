@@ -49,7 +49,7 @@ $(document).ready(function(){
         $(".ready-"+playerSide).on('mousedown',function(){
             $(this).hide();
             $(".cellsLeft").hide();
-            if (!ready) socket.emit("readyToPlay",{world:world});
+            if (!readyToPlay) socket.emit("readyToPlay",{world:world});
             readyToPlay = true;
         });
     });

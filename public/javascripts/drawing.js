@@ -28,9 +28,9 @@ $(document).ready(function(){
             socket.emit('joinRoom',player);
             $(".landing").hide();
             $('.game').show();
+            drawFrame();
         }
     });
-
     
 
     socket.on('roomJoined',function(data){
@@ -54,6 +54,7 @@ $(document).ready(function(){
 
     socket.on("allSpeciesReady",function(data){
         world = data.world;
+        drawFrame();
     });
     //socket.on('readyToPlay',)
     //let them place stuff on their half

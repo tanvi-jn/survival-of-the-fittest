@@ -48,7 +48,7 @@ module.exports.getRouter = function(io){
 
 		socket.on('readyToPlay',function(data){
 			socket.data.readyToPlay = true;
-			copyWorldHalf(socket.side,activeRooms[socket.data.room].world,data.world,horizontalCellNum,verticalCellNum);
+			copyWorldHalf(socket.data.side,activeRooms[socket.data.room].world,data.world,horizontalCellNum,verticalCellNum);
 			var allReadyToPlay = true;
 			for (var i = 0; i < activeRooms[socket.data.room].species.length; i++){
 				if (activeRooms[socket.data.room].species[i].id === socket.id){
@@ -58,6 +58,7 @@ module.exports.getRouter = function(io){
 				allReadyToPlay = allReadyToPlay && activeRooms[socket.data.room].species[i].readyToPlay;
 			}
 			if (allReadyToPlay){
+				// console.log(activeRooms[socket.data.room].world);
 				io.sockets.in(socket.data.room).emit('allSpeciesReady',{world: activeRooms[socket.data.room].world});
 				activeRooms[socket.data.room].allReadyToPlay = true;
 				sendUpdatedWorld(socket.data.room);
@@ -88,6 +89,9 @@ module.exports.getRouter = function(io){
 	function copyWorldHalf(side,originalWorld,recievedWorld,horizontalCellNum,verticalCellNum){
 		var startIndex = (side=='left')? 0 : horizontalCellNum/2;
 		var endIndex = startIndex + horizontalCellNum/2;
+		console.log(side);
+		console.log(startIndex);
+		console.log(endIndex);
 		//TODO: Do checking that they didnt place more cells then allowed
 		for (var i = startIndex; i < endIndex; i++){
 			for (var j = 0; j < verticalCellNum;j++){
@@ -132,7 +136,7 @@ module.exports.getRouter = function(io){
 	}
 	function sendUpdatedWorld(room){
 		activeRooms[room].world = updateWorld(activeRooms[room].world,room);
-		io.sockets.in(room).emit('worldUpdated',activeRooms[room].world);
+		io.sockets.in(room).emit('worldUpdated',{world: activeRooms[room].world});
 		setTimeout(sendUpdatedWorld,250,room);
 	}
 	return router;

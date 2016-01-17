@@ -136,7 +136,7 @@ module.exports.getRouter = function(io){
 	}
 	function sendUpdatedWorld(room){
 		activeRooms[room].world = updateWorld(activeRooms[room].world,room);
-		io.sockets.in(room).emit('worldUpdated',activeRooms[room].world);
+		io.sockets.in(room).emit('worldUpdated',{world: activeRooms[room].world});
 		setTimeout(sendUpdatedWorld,250,room);
 	}
 	return router;

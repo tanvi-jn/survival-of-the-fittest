@@ -7,7 +7,7 @@ module.exports.getRouter = function(io){
 	router.get('/', function(req, res, next) {
 		res.render('index.html');
 	});
-	
+
 	var roomIdCount = 0;
 	var userCount = 1;
 	var horizontalCellNum = 80;
@@ -35,8 +35,8 @@ module.exports.getRouter = function(io){
 				socket.data.side = "right";
 			}
 			activeRooms[assignedRoom].species[activeRooms[assignedRoom].species.length] = socket.data;
-			socket.emit('roomJoined',activeRooms[assignedRoom]);
-			socket.broadcast.to(assignedRoom).emit('newSpeciesJoined',activeRooms[assignedRoom]);
+			socket.emit('roomJoined',{species: activeRooms[assignedRoom].species, world: activeRooms[assignedRoom].world, id: socket.data.id});
+			socket.broadcast.to(assignedRoom).emit('newSpeciesJoined',{species: activeRooms[assignedRoom].species, world: activeRooms[assignedRoom].world});
 		});
 
 		socket.on('readyToPlay',function(data){
@@ -52,7 +52,6 @@ module.exports.getRouter = function(io){
 			}
 			if (allReadyToPlay){
 				io.sockets.in(socket.data.room).emit('allSpeciesReady',{world: activeRooms[socket.data.room].world});
-				// console.log("Ready to play.");
 				sendUpdatedWorld(socket.data.room);
 			}
 		});

@@ -17,6 +17,7 @@ module.exports.getRouter = function(io){
 
 	io.sockets.on('connection', function(socket){
 		socket.on('joinRoom',function(data){
+			console.log(data);
 			socket.data = {};
 			socket.data.id = userCount++;
 			socket.data.username = data.username;

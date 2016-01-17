@@ -35,17 +35,19 @@ module.exports.getRouter = function(io){
 				socket.data.side = "right";
 			}
 			activeRooms[assignedRoom].species[activeRooms[assignedRoom].species.length] = socket.data;
-			socket.emit('roomJoined',{species: activeRooms[assignedRoom].species, world: generateBlankWorld(horizontalCellNum,verticalCellNum), id: socket.data.id});
+			socket.emit('roomJoined',{species: activeRooms[assignedRoom].species, world: generateBlankWorld(horizontalCellNum,verticalCellNum), id: socket.data.id, username: socket.data.username});
 			socket.broadcast.to(assignedRoom).emit('newSpeciesJoined',{species: activeRooms[assignedRoom].species, world: generateBlankWorld(horizontalCellNum,verticalCellNum)});
 			socket.on('disconnect',function(){
-				for (var i = 0; i < activeRooms[assignedRoom].species.length;i++){
-					activeRooms[assignedRoom].species.splice(i,1);
-				}
-				if (activeRooms[assignedRoom].species.length === 0 || activeRooms[assignedRoom].lifeStarted){
-					socket.broadcast.to(assignedRoom).emit('lifeOver');
-					delete activeRooms[assignedRoom];
-					if (assignedRoom === ('room' + roomIdCount)){
-						roomIdCount++;
+				if (activeRooms[assignedRoom] !== undefined){
+					for (var i = 0; i < activeRooms[assignedRoom].species.length;i++){
+						activeRooms[assignedRoom].species.splice(i,1);
+					}
+					if (activeRooms[assignedRoom].species.length === 0 || activeRooms[assignedRoom].lifeStarted){
+						socket.broadcast.to(assignedRoom).emit('lifeOver');
+						delete activeRooms[assignedRoom];
+						if (assignedRoom === ('room' + roomIdCount)){
+							activeRooms['room' + (++roomIdCount)] = generateRoom();
+						}
 					}
 				}
 				socket.broadcast.to(assignedRoom).emit('speciesDisconnected',socket.data.id);

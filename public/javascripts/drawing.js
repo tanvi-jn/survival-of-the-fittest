@@ -47,8 +47,8 @@ $(document).ready(function(){
         }
 
         $(".ready-"+playerSide).on('mousedown',function(){
-            $(this).hide();
-            $(".cellsLeft").hide();
+            $(this).remove();
+            $(".cellsLeft").remove();
             if (!ready) socket.emit("readyToPlay",{world:world});
             readyToPlay = true;
         });
@@ -62,6 +62,7 @@ $(document).ready(function(){
     });
 
     socket.on("worldUpdated",function(data){
+        $('.ready').remove();
         lifeHasBegun = true;
         world = data.world;
         drawFrame();

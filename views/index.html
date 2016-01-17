@@ -2,14 +2,61 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"/>
 	<link rel="stylesheet" href="stylesheets/style.css"/>
-	<title>Document</title>
+	<title>Multiway of Life</title>
 </head>
 <body>
-  <canvas id="lifecanvas" height="500px" width="800px">
-    Your browser doesn't appear to support the 
-    <code>&lt;canvas&gt;</code> element.
-  </canvas>
+<!--Page start-->
+<div class="landing container">
+<div class="row">
+	<center>
+		<h1>Multiway of Life</h1>
+	</center>
+</div>
+
+<form>
+  <div class="row">
+  <div class="four columns"> &nbsp; </div>
+    <div class="four columns">
+      <label for="playerNameInput">Name</label>
+      <input class="u-full-width" placeholder="Conway" id="playerNameInput" type="text">
+      </div>
+    </div>
+ <div class="row">
+  <div class="three columns"> &nbsp; </div>
+    <div class="six columns"><center>
+      <div class="colourBlock blue"></div>
+      <div class="colourBlock red"></div>
+      <div class="colourBlock green"></div>
+      <div class="colourBlock pink"></div>
+      <div class="colourBlock purple"></div>
+      <div class="colourBlock grey"></div>
+      </center>
+      </div>
+    </div>
+<div class="row">
+  <div class="four columns"> &nbsp; </div>
+    <div class="four columns">
+      <center><input class="button-primary join" value="Join Game" type="submit"></center>
+      </div>
+    </div>
+</form>
+</div>
+
+<!--Game start-->
+<div class="game container">
+<div class="row">
+	<div class="one column"> player 1 </div>
+	<div class="ten columns">
+	  <canvas id="lifecanvas" height="500px" width="700px">
+	    Your browser doesn't appear to support the <code>&lt;canvas&gt;</code> element.
+	  </canvas>
+	  </div>
+	<div class="one column"> player 2</div>
+</div>
+</div>
+
   	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="javascripts/drawing.js"></script>

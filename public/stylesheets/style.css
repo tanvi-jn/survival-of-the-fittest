@@ -8,11 +8,49 @@ a {
 }
 
 #lifecanvas {
-	position: absolute;
-    top:0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin:auto;
+	display: block;
+    margin-left: auto;
+    margin-right: auto;
     border-style: solid;
+}
+
+.game {
+	display:none;
+}
+
+.colourBlock{
+	height:30px;
+	width:30px;
+    margin: 0 auto;
+    margin-left:5px;
+    margin-right:5px;
+    margin-bottom:10px;
+    display: inline-block;
+    overflow: hidden;
+    border-radius:15%;
+    border:0px solid black;
+}
+
+.blue{
+	background: #42BDE8;
+}
+
+.green{
+	background: #74DA7A;
+}
+
+.red{
+	background: #FA3D44;
+}
+
+.pink{
+	background: #FA589F;
+}
+
+.grey{
+	background: #545350;
+}
+
+.purple{
+	background: purple;
 }

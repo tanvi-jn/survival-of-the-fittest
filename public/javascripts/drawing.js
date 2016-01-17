@@ -7,29 +7,40 @@ $(document).ready(function(){
     var canvW = canvas.width;
     var canvH = canvas.height;
     var cellSize = 10;
-    var cells;
+    var world;
     var species;
     var playerName;
     var playerColour;
+    var playerId;
+    var lifeHasBegun = false;
 
     $(".colourBlock").on('mousedown',function(){
-        var colour = $('.colourBlock').attr('class').split(' ')[1];
-        console.log(colour);
-        playerColour = $("."+colour).attr("background");
+        //console.log(colour);
+        playerColour = $(this).css("background-color");
         console.log(playerColour);
     });
 
     $(".join").on('mousedown',function(){
             player = {name:$("#playerNameInput").val(),colour:playerColour};
             console.log(player);
-            socket.emit('joinGame',player);
+            socket.emit('joinRoom',player);
             $(".landing").hide();
             $('.game').show();
         });
 
-    cells = initializeCells(cellSize);
-    drawGrid(cellSize);
-    drawCells(cellSize, cells);
+    socket.on('roomJoined',function(data){
+        playerId = data.id;
+        species = data.species;
+        world = data.world;
+    });
+    socket.on('newSpeciesJoined',function(data){
+        species = data.species;
+        world = data.world;
+    });
+    //socket.on('readyToPlay',)
+    //let them place stuff on their half
+    //send newly placed world back when they click ready
+
     canvas.addEventListener("mousedown", onCanvasClick, false);
 
     function drawGrid(){
@@ -49,14 +60,23 @@ $(document).ready(function(){
             ctx.lineTo(j, canvH);
             ctx.stroke();
             ctx.closePath();
-        }    
+        }
+        if (!lifeHasBegun){
+            ctx.strokeStyle="red";
+            ctx.beginPath();
+            ctx.moveTo(canvW/2,0);
+            ctx.lineTo(canvW/2,canvH);
+            ctx.stroke();
+            ctx.closePath();
+
+        }
     }
       
     function drawCells(){
-        for (var i=0; i<cells.length; i++){
-            for (var j=0; j<cells[0].length; j++){
-                if (cells[i][j]==1){ //if cell is alive
-                    //ctx.fillStyle=species[cells[i][j]]; //grab colour
+        for (var i=0; i<world.length; i++){
+            for (var j=0; j<world[0].length; j++){
+                if (world[i][j]!=0){ //if cell is alive
+                    //ctx.fillStyle=species[world[i][j]]; //grab colour
                     ctx.fillRect(i*cellSize,j*cellSize,cellSize,cellSize); //draw
                 }   
             }
@@ -86,8 +106,10 @@ $(document).ready(function(){
         mouse.y = e.clientY - rect.top;
         console.log("x: "+mouse.x+", y: "+mouse.y);
         //check if mouse click is within canvas, *(and on correct half of screen)
-        if (0 <= mouse.x && mouse.x <= canvW && 0 <= mouse.y && mouse.y <= canvH){
-            editCell(mouse);
+        if (0 <= mouse.y && mouse.y <= canvH && 0 <= mouse.x ){
+            if(mouse.x <= canvW && lifeHasBegun || mouse.x <= canvW/2 && !lifeHasBegun){
+                editCell(mouse);
+            }
         }
         //temporary redrawing
         drawFrame();
@@ -97,48 +119,9 @@ $(document).ready(function(){
         var x =Math.floor((mouse.x)/cellSize);
         var y =Math.floor((mouse.y)/cellSize);
         console.log(x+","+y);
-        if (cells[x][y]==1) cells[x][y] = 0;
-        else cells[x][y] = 1;
+        if (world[x][y]==1) world[x][y] = 0;
+        else world[x][y] = 1;
     }
     //
-
-//move the following code into game-mechanics file
-    function initializeCells(cellSize){
-        var cells = new Array(canvW/cellSize);
-        for (var i = 0; i < canvW/cellSize; i++) {
-            cells[i] = new Array(canvH/cellSize);
-            for (var j = 0; j < canvH/cellSize; j++){
-                cells[i][j] = 0;
-            }
-        }
-        return cells;
-    }
-
-    function clearCells(cells){
-        for (var i = 0; i < cells.length; i++){
-            for (var j = 0; j < cells.length; j++) {
-                cells[i][j] = 0;
-            }
-        }
-    }
-
-    function nextGen(cells, species){
-        for (var i = 0; i < cells.length; i++){
-            for (var j = 0; j < cells.length; j++) {
-                var numberOfSpecies = species.length;
-
-                n = world[i+1][j] + world[i-1][j] + world[i][j+1] + world[i][j-1] + world[i+1][j+1] + world[i+1][j-1] + world[i-1][j-1] + world[i-1][j+1];
-                if (n < 2 || n > 3){
-                    temp[i][j]=0; //cell dies due to under- or over-population
-                }
-                if(n == 2){ //with a balanced population, cell stays the same
-                    temp[i][j]=world[i][j];
-                }
-                if(n == 3){ //with enough live neighbours, new cells may be "born"
-                    temp[i][j]=1;
-                }
-            }
-        }
-    }
 
 });

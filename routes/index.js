@@ -35,8 +35,8 @@ module.exports.getRouter = function(io){
 				socket.data.side = "right";
 			}
 			activeRooms[assignedRoom].species[activeRooms[assignedRoom].species.length] = socket.data;
-			socket.emit('roomJoined',{species: activeRooms[assignedRoom].species, world: activeRooms[assignedRoom].world, id: socket.data.id});
-			socket.broadcast.to(assignedRoom).emit('newSpeciesJoined',{species: activeRooms[assignedRoom].species, world: activeRooms[assignedRoom].world});
+			socket.emit('roomJoined',{species: activeRooms[assignedRoom].species, world: generateBlankWorld(horizontalCellNum,verticalCellNum), id: socket.data.id});
+			socket.broadcast.to(assignedRoom).emit('newSpeciesJoined',{species: activeRooms[assignedRoom].species, world: generateBlankWorld(horizontalCellNum,verticalCellNum)});
 			socket.on('disconnect',function(){
 				for (var i = 0; i < activeRooms[assignedRoom].species.length;i++){
 					activeRooms[assignedRoom].species.splice(i,1);
@@ -47,27 +47,28 @@ module.exports.getRouter = function(io){
 		});
 
 		socket.on('readyToPlay',function(data){
-			socket.data.readyToPlay = true;
-			copyWorldHalf(socket.data.side,activeRooms[socket.data.room].world,data.world,horizontalCellNum,verticalCellNum);
-			var allReadyToPlay = true;
-			for (var i = 0; i < activeRooms[socket.data.room].species.length; i++){
-				if (activeRooms[socket.data.room].species[i].id === socket.id){
-					//TODO: Check whether this is even neccesary or if aliasing takes care of it.
-					activeRooms[socket.data.room].species[i].readyToPlay = socket.data.readyToPlay;
+			if (!activeRooms[socket.data.room].lifeStarted){
+				socket.data.readyToPlay = true;
+				copyWorldHalf(socket.data.side,activeRooms[socket.data.room].world,data.world,horizontalCellNum,verticalCellNum);
+				var allReadyToPlay = true;
+				for (var i = 0; i < activeRooms[socket.data.room].species.length; i++){
+					if (activeRooms[socket.data.room].species[i].id === socket.id){
+						//TODO: Check whether this is even neccesary or if aliasing takes care of it.
+						activeRooms[socket.data.room].species[i].readyToPlay = socket.data.readyToPlay;
+					}
+					allReadyToPlay = allReadyToPlay && activeRooms[socket.data.room].species[i].readyToPlay;
 				}
-				allReadyToPlay = allReadyToPlay && activeRooms[socket.data.room].species[i].readyToPlay;
-			}
-			if (allReadyToPlay){
-				// console.log(activeRooms[socket.data.room].world);
-				io.sockets.in(socket.data.room).emit('allSpeciesReady',{world: activeRooms[socket.data.room].world});
-				activeRooms[socket.data.room].allReadyToPlay = true;
-				sendUpdatedWorld(socket.data.room);
+				if (allReadyToPlay && (activeRooms[socket.data.room].species.length == 2)){
+					activeRooms[socket.data.room].allReadyToPlay = true;
+					activeRooms[socket.data.room].lifeStarted = true;
+					sendUpdatedWorld(socket.data.room);
+				}
 			}
 		});
 	});
 
 	function generateRoom(){
-		return {species: [], world: generateBlankWorld(horizontalCellNum,verticalCellNum), allReadyToPlay: false};
+		return {species: [], world: generateBlankWorld(horizontalCellNum,verticalCellNum), allReadyToPlay: false, lifeStarted: false};
 	}
 
 	function generateBlankWorld(horizontalCellNum,verticalCellNum){
@@ -89,9 +90,6 @@ module.exports.getRouter = function(io){
 	function copyWorldHalf(side,originalWorld,recievedWorld,horizontalCellNum,verticalCellNum){
 		var startIndex = (side=='left')? 0 : horizontalCellNum/2;
 		var endIndex = startIndex + horizontalCellNum/2;
-		console.log(side);
-		console.log(startIndex);
-		console.log(endIndex);
 		//TODO: Do checking that they didnt place more cells then allowed
 		for (var i = startIndex; i < endIndex; i++){
 			for (var j = 0; j < verticalCellNum;j++){

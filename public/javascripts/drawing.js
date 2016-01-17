@@ -52,12 +52,6 @@ $(document).ready(function(){
         species = data.species;
     });
 
-    socket.on("allSpeciesReady",function(data){
-        console.log(data);
-        world = data.world;
-        drawFrame();
-    });
-
     socket.on("worldUpdated",function(data){
         world = data.world;
         drawFrame();

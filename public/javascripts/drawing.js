@@ -13,8 +13,8 @@ $(document).ready(function(){
     var playerColour;
     var playerId;
     var playerSide;
+    var readyToPlay = false;
     var lifeHasBegun = false;
-    var cellsLeft;
 
     $(".colourBlock").on('mousedown',function(){
         //console.log(colour);
@@ -24,8 +24,7 @@ $(document).ready(function(){
 
     $(".join").on('mousedown',function(){
         if (playerColour !== undefined){
-            player = {name:$("#playerNameInput").val(),colour:playerColour};
-            console.log(player);
+            player = {username:$("#playerNameInput").val(),colour:playerColour}; 
             socket.emit('joinRoom',player);
             $(".landing").hide();
             $('.game').show();
@@ -38,15 +37,16 @@ $(document).ready(function(){
         console.log(data);
         playerId = data.id;
         species = data.species;
-        cellsLeft = species.cellsLeft;
+        cellsLeft = getSpecies(playerId).cellsLeft;
+        console.log("cells left: "+cellsLeft);
         world = data.world;
         playerSide = getSpecies(playerId).side;
-        console.log(".ready-"+playerSide);
-        $(".playerName"+playerSide).innerHTML=data.name;
+        console.log(getSpecies(playerId).username);
+        $(".playerName"+playerSide).text(getSpecies(playerId).username);
         $(".ready-"+playerSide).on('mousedown',function(){
-            console.log("clicked");
+            $(this).hide();
             if (!ready) socket.emit("readyToPlay",{world:world});
-            var ready = true;
+            readyToPlay = true;
         });
     });
 
@@ -56,6 +56,7 @@ $(document).ready(function(){
     });
 
     socket.on("worldUpdated",function(data){
+        lifeHasBegun = true;
         world = data.world;
         drawFrame();
     });
@@ -92,13 +93,15 @@ $(document).ready(function(){
             ctx.stroke();
             ctx.closePath();
         }
-        ctx.strokeStyle="red";
-        ctx.lineWidth= 0.5;
-        ctx.beginPath();
-        ctx.moveTo(canvW/2,0);
-        ctx.lineTo(canvW/2,canvH);
-        ctx.stroke();
-        ctx.closePath();
+        if (!lifeHasBegun){
+            ctx.strokeStyle="black";
+            ctx.lineWidth= 1;
+            ctx.beginPath();
+            ctx.moveTo(canvW/2,0);
+            ctx.lineTo(canvW/2,canvH);
+            ctx.stroke();
+            ctx.closePath();
+        }
 
     }
       
@@ -128,8 +131,10 @@ $(document).ready(function(){
         console.log("x: "+mouse.x+", y: "+mouse.y);
         //console.log(playerSide);
         //check if mouse click is within canvas, *(and on correct half of screen)
-        if (0 <= mouse.y && mouse.y <= canvH && 0 <= mouse.x ){
+        if (0 <= mouse.y && mouse.y <= canvH && 0 <= mouse.x && cellsLeft>0 && !readyToPlay){
             if(mouse.x <= canvW/2 && playerSide==="left" || mouse.x > canvW/2 && playerSide==="right"){
+                cellsLeft--;
+                console.log("cells left: "+cellsLeft);
                 editCell(mouse);
             }
         }

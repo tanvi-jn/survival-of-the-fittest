@@ -10,27 +10,34 @@ $(document).ready(function(){
     var world;
     var species;
     var playerName;
-    var playerColour;
+    var playerColour = "#1a5d7a";
     var playerId;
     var playerSide;
     var readyToPlay = false;
     var lifeHasBegun = false;
 
     $(".colourBlock").on('mousedown',function(){
-        //console.log(colour);
+        $(".colourBlock").removeClass('chosenBlock');
+        $(this).addClass('chosenBlock');
+        $('.landing').focus();
         playerColour = $(this).css("background-color");
         console.log(playerColour);
     });
-
-    $(".join").on('mousedown',function(){
+    var join = function(){
         if (playerColour !== undefined){
-            player = {username:$("#playerNameInput").val(),colour:playerColour}; 
+            player = {username:$("#playerNameInput").val(),colour:playerColour};
             socket.emit('joinRoom',player);
             $(".landing").hide();
             $('.game').show();
             drawGrid();
         }
-    }); 
+    };
+    $(".join").on('mousedown',join);
+    $(document).keyup(function(event){
+        if (event.keyCode == 13){
+            join();
+        }
+    });
 
     socket.on('roomJoined',function(data){
         console.log(data);
@@ -79,7 +86,7 @@ $(document).ready(function(){
 
     function drawGrid(){
         ctx.fillStyle="white";
-        ctx.fillRect(0,0,canvW,canvH)
+        ctx.fillRect(0,0,canvW,canvH);
         ctx.strokeStyle="#50514f";
         ctx.lineWidth= 0.1;
         //vertical
@@ -113,10 +120,10 @@ $(document).ready(function(){
     function drawCells(){
         for (var i=0; i<world.length; i++){
             for (var j=0; j<world[0].length; j++){
-                if (world[i][j]!=0){ //if cell is alive
+                if (world[i][j]!==0){ //if cell is alive
                     ctx.fillStyle=getSpecies(world[i][j]).colour; //grab colour
                     ctx.fillRect(i*cellSize,j*cellSize,cellSize,cellSize); //draw
-                }   
+                }
             }
         }
     }
@@ -149,7 +156,7 @@ $(document).ready(function(){
         var x =Math.floor((mouse.x)/cellSize);
         var y =Math.floor((mouse.y)/cellSize);
         console.log(x+","+y);
-        if (world[x][y]!=0) world[x][y] = 0;
+        if (world[x][y]!==0) world[x][y] = 0;
         else if(cellsLeft>0){
             cellsLeft--;
             $(".numCellsLeft").text(cellsLeft);

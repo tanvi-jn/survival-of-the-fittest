@@ -5,29 +5,29 @@
   <link href='https://fonts.googleapis.com/css?family=Roboto:100' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"/>
 	<link rel="stylesheet" href="stylesheets/style.css"/>
-	<title>Multiway of Life</title>
+	<title>Survival of The Fittest</title>
 </head>
 <body>
 <!--Page start-->
 <div class="landing container">
 <div class="row">
 	<center>
-		<h1>Multiway of Life</h1>
+		<h1>Survival of The Fittest</h1>
 	</center>
 </div>
 
-<form>
+<!-- <form> -->
   <div class="row">
   <div class="four columns"> &nbsp; </div>
     <div class="four columns">
-      <label for="playerNameInput">Name</label>
+      <!-- <label for="playerNameInput">Name</label> -->
       <input class="u-full-width" placeholder="Conway" id="playerNameInput" type="text">
       </div>
     </div>
  <div class="row">
   <div class="three columns"> &nbsp; </div>
     <div class="six columns"><center>
-      <div class="colourBlock blue"></div>
+      <div class="colourBlock chosenBlock blue"></div>
       <div class="colourBlock red"></div>
       <div class="colourBlock green"></div>
        <div class="colourBlock purple"></div>
@@ -42,25 +42,24 @@
       <center><input class="button-primary join" value="Join Game" type="submit"></center>
       </div>
     </div>
-</form>
 </div>
 
 <!--Game start-->
 <div class="game container">
 <div class="row">
 
-	<div class="one column">
+	<div class="two columns sideCol">
 
-		<span class="playerNameleft">player1</span>
+		<span class="playerName playerNameleft">Waiting..</span>
 		<input class="button-primary ready ready-left" value="Ready" type="submit">
 	</div>
-	<div class="ten columns">
+	<div class="eight columns midCol">
 	  <canvas id="lifecanvas" height="500px" width="700px">
 	    Your browser doesn't appear to support the <code>&lt;canvas&gt;</code> element.
 	  </canvas>
 	  </div>
-	<div class="one column">
-		<span class="playerNameright">player2</span>
+	<div class="two columns sideCol">
+		<span class="playerName playerNameright">Waiting..</span>
 		<input class="button-primary ready ready-right" value="Ready" type="submit">
 	</div>
 </div>

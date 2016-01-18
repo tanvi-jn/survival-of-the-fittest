@@ -1,5 +1,6 @@
 body {
-  padding: 50px;
+  padding-top: 50px;
+  padding-bottom: 50px;
   font-size: 20px;
   font-family: 'Roboto', sans-serif;
   color: #ecf0f1;
@@ -16,18 +17,25 @@ a {
 
 #lifecanvas {
 	display: block;
-    margin-left: auto;
-    margin-right: auto;
-    border-radius:1%;
-    border-style: 4px solid #50514f;
+  margin: 0 auto;
+  border-radius:1%;
+  border-style: 4px solid #50514f;
 }
-
+.sideCol{
+  margin: 0 auto;
+}
+.midCol{
+  margin: 0;
+}
 .row {
 	width:100%;
 }
 
 .game {
 	display:none;
+}
+.two.columns{
+  text-align: center;
 }
 
 .colourBlock{
@@ -42,7 +50,9 @@ a {
     border-radius:15%;
     border:0px solid black;
 }
-
+.chosenBlock{
+  border: 3px solid black;
+}
 .blue{
 	background: #1a5d7a;
 }
@@ -65,4 +75,27 @@ a {
 
 .purple{
 	background: #c7efcf;
+}
+.playerName{
+  font-size: 30px;
+  min-width: 105px;
+  display: block;
+}
+#playerNameInput{
+  font-size: 20px;
+}
+.landing{
+  margin: 10% auto;
+}
+.one{
+  margin: 0;
+}
+.game{
+  width: 100%;
+  max-width: none;
+}
+@media (min-width: 550px){
+  .two.columns {
+      width: 17.3333333333%;
+  }
 }

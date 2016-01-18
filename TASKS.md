@@ -4,7 +4,7 @@ Necessary
 - [ ] allow inserting cells via dragging the mouse
 - [ ] calculate "homeostasis" for a win, lose, or tie game screen
 - [ ] write the basic rules somewhere
-- [ ] fix edit cell mode to add to the placeable cells count when the user deletes a cell
+- [ ] fix edit cell mode to add to the placable cells count when the user deletes a cell
 - [ ] allow placeing during game, however still require to place a certain number of cells before starting game
 - [ ] keep up the pseudobiology theme!
 

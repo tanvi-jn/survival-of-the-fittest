@@ -55,7 +55,11 @@ $(document).ready(function(){
         if (species.length>1){
             var newSpecies = species[0];
             $(".playerName"+newSpecies.side).text(newSpecies.username);
-            $('.waitingLabel').text(newSpecies.username +" is birthing cells..");
+            if (newSpecies.readyToPlay == false){
+                $('.waitingLabel').text(newSpecies.username +" is birthing cells..");
+            }else{
+                $('.waitingLabel').text(newSpecies.username + " is ready!");
+            }
         }
         $("." + playerSide + "Col").append('<input class="button-primary ready" value="Ready" type="submit">');
         $(".ready").on('mousedown',function(){

@@ -171,12 +171,14 @@ $(document).ready(function(){
         var x =Math.floor((mouse.x)/cellSize);
         var y =Math.floor((mouse.y)/cellSize);
         console.log(x+","+y);
-        if (world[x][y]!==0) world[x][y] = 0;
-        else if(cellsLeft>0){
+        if (world[x][y]!==0){
+            cellsLeft++;
+            world[x][y] = 0;
+        }else if(cellsLeft>0){
             cellsLeft--;
-            $(".numCellsLeft").text(cellsLeft);
             world[x][y] = playerId;
         }
+        $(".numCellsLeft").text(cellsLeft);
     }
     //
 

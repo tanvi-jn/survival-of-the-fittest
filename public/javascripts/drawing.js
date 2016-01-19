@@ -13,6 +13,7 @@ $(document).ready(function(){
     var playerColour = "#1a5d7a";
     var playerId;
     var playerSide;
+    var oponentName;
     var readyToPlay = false;
     var lifeHasBegun = false;
 
@@ -48,12 +49,16 @@ $(document).ready(function(){
         playerSide = getSpecies(playerId).side;
         $(".numCellsLeft").text(cellsLeft);
         $(".playerName"+playerSide).text(getSpecies(playerId).username);
+        $('.canvContainer').append('<div class="oponentOverlay"><span class="waitingLabel">Waiting for an oponent..</span></div>');
+        var oponentSide = playerSide=='left'? 'right': 'left';
+        $('.oponentOverlay').css(oponentSide, "0");
         if (species.length>1){
             var newSpecies = species[0];
             $(".playerName"+newSpecies.side).text(newSpecies.username);
+            $('.waitingLabel').text(newSpecies.username +" is birthing cells..");
         }
-
-        $(".ready-"+playerSide).on('mousedown',function(){
+        $("." + playerSide + "Col").append('<input class="button-primary ready" value="Ready" type="submit">');
+        $(".ready").on('mousedown',function(){
             $(this).hide();
             $(".cellsLeft").hide();
             if (!readyToPlay) socket.emit("readyToPlay",{world:world});
@@ -65,11 +70,17 @@ $(document).ready(function(){
         console.log(data);
         species = data.species;
         var newSpecies = species[1];
+        oponentName = newSpecies.username;
         $(".playerName"+newSpecies.side).text(newSpecies.username);
+        $('.waitingLabel').text(newSpecies.username +" is birthing cells..");
+    });
+
+    socket.on('otherPlayerReady',function(){
+        $('.waitingLabel').text(oponentName + " is ready!");
     });
 
     socket.on("worldUpdated",function(data){
-        $('.ready').hide();
+        $('.oponentOverlay').remove();
         lifeHasBegun = true;
         world = data.world;
         drawFrame();

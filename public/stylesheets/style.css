@@ -17,7 +17,7 @@ a {
 
 #lifecanvas {
 	display: block;
-  margin: 0 auto;
+  /*margin: 0 auto;*/
   border-radius:1%;
   border-style: 4px solid #50514f;
 }
@@ -93,6 +93,30 @@ a {
 .game{
   width: 100%;
   max-width: none;
+}
+.canvContainer{
+  position: relative;
+  margin: 0 auto;
+  height: 500px;
+  width: 700px;
+}
+.oponentOverlay{
+  text-align: center;
+  vertical-align: center;
+  width: 350px;
+  height: 500px;
+  background-color: rgba(41,128,185,0.5);
+  top: 0;
+  position: absolute;
+  display: table;
+}
+.waitingLabel{
+  display: table-cell;
+  vertical-align: middle;
+  font-size: 35px;
+}
+.readyCont{
+  text-align: center;
 }
 @media (min-width: 550px){
   .two.columns {

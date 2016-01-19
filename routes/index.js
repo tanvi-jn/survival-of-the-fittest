@@ -59,6 +59,7 @@ module.exports.getRouter = function(io){
 			if (activeRooms[socket.data.room] !== undefined){
 				if (!activeRooms[socket.data.room].lifeStarted){
 					socket.data.readyToPlay = true;
+					socket.broadcast.to(socket.data.room).emit('otherPlayerReady');
 					copyWorldHalf(socket.data.side,activeRooms[socket.data.room].world,data.world,horizontalCellNum,verticalCellNum);
 					var allReadyToPlay = true;
 					for (var i = 0; i < activeRooms[socket.data.room].species.length; i++){

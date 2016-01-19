@@ -1,6 +1,5 @@
 Necessary
 - [ ] handle lifeOver event!!!!
-- [ ] make the "world" wrap-around on all edges
 - [ ] allow inserting cells via dragging the mouse
 - [ ] calculate "homeostasis" for a win, lose, or tie game screen
 - [ ] write the basic rules somewhere

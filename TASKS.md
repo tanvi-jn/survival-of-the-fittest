@@ -1,4 +1,5 @@
 Necessary
+- [ ] handle lifeOver event!!!!
 - [ ] make the "world" wrap-around on all edges
 - [ ] modify the opponent username/waiting/ready display
 - [ ] allow inserting cells via dragging the mouse

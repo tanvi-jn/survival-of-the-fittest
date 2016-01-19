@@ -22,7 +22,6 @@ $(document).ready(function(){
         $(this).addClass('chosenBlock');
         $('.landing').focus();
         playerColour = $(this).css("background-color");
-        console.log(playerColour);
     });
     var join = function(){
         if (playerColour !== undefined){
@@ -41,7 +40,6 @@ $(document).ready(function(){
     });
 
     socket.on('roomJoined',function(data){
-        console.log(data);
         playerId = data.id;
         species = data.species;
         cellsLeft = getSpecies(playerId).cellsLeft;
@@ -71,7 +69,6 @@ $(document).ready(function(){
     });
 
     socket.on('newSpeciesJoined',function(data){
-        console.log(data);
         species = data.species;
         var newSpecies = species[1];
         oponentName = newSpecies.username;
@@ -155,8 +152,6 @@ $(document).ready(function(){
         var mouse = {x: 0, y: 0}; //mouse click coordinates
         mouse.x = e.clientX - rect.left; //from world coords -> canvas coords
         mouse.y = e.clientY - rect.top;
-        console.log("x: "+mouse.x+", y: "+mouse.y);
-        //console.log(playerSide);
         //check if mouse click is within canvas, *(and on correct half of screen)
         if (0 <= mouse.y && mouse.y <= canvH && 0 <= mouse.x && !readyToPlay){
             if(mouse.x <= canvW/2 && playerSide==="left" || mouse.x > canvW/2 && playerSide==="right"){
@@ -170,7 +165,6 @@ $(document).ready(function(){
     function editCell(mouse){
         var x =Math.floor((mouse.x)/cellSize);
         var y =Math.floor((mouse.y)/cellSize);
-        console.log(x+","+y);
         if (world[x][y]!==0){
             cellsLeft++;
             world[x][y] = 0;

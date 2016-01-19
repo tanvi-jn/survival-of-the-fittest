@@ -110,9 +110,6 @@ module.exports.getRouter = function(io){
 		}
 	}
 	function getCell(world,i,j){
-		// if (i >= world.length || i < 0 || j >= world[0].length || j < 0){
-		//	return 0;
-		// }
 		var mod = function(num, divisor) {
 			return ((num%divisor)+divisor)%divisor;
 		};

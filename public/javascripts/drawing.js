@@ -17,7 +17,7 @@ $(document).ready(function(){
     var readyToPlay = false;
     var lifeHasBegun = false;
 
-    $(".colourBlock").on('mousedown',function(){
+    $(".colourBlock").on('click',function(){
         $(".colourBlock").removeClass('chosenBlock');
         $(this).addClass('chosenBlock');
         $('.landing').focus();
@@ -33,9 +33,18 @@ $(document).ready(function(){
         }
     };
     $(".join").on('mousedown',join);
-    $(document).keyup(function(event){
+    $(document).keydown(function(event){
         if (event.keyCode == 13){
             join();
+        }
+        if (event.keyCode == 9){
+            event.preventDefault()
+            for (var i = 0; i < $('.colourBlock').length; i++){
+                if ($('.chosenBlock')[0] === $('.colourBlock')[i]){
+                    $($('.colourBlock')[(i+1)%$('.colourBlock').length]).click();
+                    break;
+                }
+            }
         }
     });
 

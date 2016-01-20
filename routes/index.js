@@ -58,21 +58,25 @@ module.exports.getRouter = function(io){
 		socket.on('readyToPlay',function(data){
 			if (activeRooms[socket.data.room] !== undefined){
 				if (!activeRooms[socket.data.room].lifeStarted){
-					socket.data.readyToPlay = true;
-					socket.broadcast.to(socket.data.room).emit('otherPlayerReady');
-					copyWorldHalf(socket.data.side,activeRooms[socket.data.room].world,data.world,horizontalCellNum,verticalCellNum);
-					var allReadyToPlay = true;
-					for (var i = 0; i < activeRooms[socket.data.room].species.length; i++){
-						if (activeRooms[socket.data.room].species[i].id === socket.id){
-							//TODO: Check whether this is even neccesary or if aliasing takes care of it.
-							activeRooms[socket.data.room].species[i].readyToPlay = socket.data.readyToPlay;
+					if (copyWorldHalf(socket.data.side,activeRooms[socket.data.room].world,data.world,horizontalCellNum,verticalCellNum)){
+						socket.emit('readyRequestAcepted');
+						socket.data.readyToPlay = true;
+						socket.broadcast.to(socket.data.room).emit('otherPlayerReady');
+						var allReadyToPlay = true;
+						for (var i = 0; i < activeRooms[socket.data.room].species.length; i++){
+							if (activeRooms[socket.data.room].species[i].id === socket.id){
+								//TODO: Check whether this is even neccesary or if aliasing takes care of it.
+								activeRooms[socket.data.room].species[i].readyToPlay = socket.data.readyToPlay;
+							}
+							allReadyToPlay = allReadyToPlay && activeRooms[socket.data.room].species[i].readyToPlay;
 						}
-						allReadyToPlay = allReadyToPlay && activeRooms[socket.data.room].species[i].readyToPlay;
-					}
-					if (allReadyToPlay && (activeRooms[socket.data.room].species.length == 2)){
-						activeRooms[socket.data.room].allReadyToPlay = true;
-						activeRooms[socket.data.room].lifeStarted = true;
-						sendUpdatedWorld(socket.data.room);
+						if (allReadyToPlay && (activeRooms[socket.data.room].species.length == 2)){
+							activeRooms[socket.data.room].allReadyToPlay = true;
+							activeRooms[socket.data.room].lifeStarted = true;
+							sendUpdatedWorld(socket.data.room);
+						}
+					}else{
+						socket.emit('readyRequestRejected',{message: "Invalid placing of cells."});
 					}
 				}
 		}
@@ -103,11 +107,19 @@ module.exports.getRouter = function(io){
 		var startIndex = (side=='left')? 0 : horizontalCellNum/2;
 		var endIndex = startIndex + horizontalCellNum/2;
 		//TODO: Do checking that they didnt place more cells then allowed
+		var totalPlaced = 0;
+		for (var i = startIndex; i < endIndex; i++){
+			for (var j = 0; j < verticalCellNum;j++){
+				totalPlaced += (recievedWorld[i][j] === 0)? 0 : 1;
+			}
+		}
+		if (totalPlaced > initialPlacableCellAmount){return false;}
 		for (var i = startIndex; i < endIndex; i++){
 			for (var j = 0; j < verticalCellNum;j++){
 				originalWorld[i][j] = recievedWorld[i][j];
 			}
 		}
+		return true;
 	}
 	function getCell(world,i,j){
 		var mod = function(num, divisor) {

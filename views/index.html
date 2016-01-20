@@ -3,8 +3,10 @@
 <head>
 	<meta charset="UTF-8">
   <link href='https://fonts.googleapis.com/css?family=Roboto:100' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"/>
-	<link rel="stylesheet" href="stylesheets/style.css"/>
+  <!-- Had to manually remove button from skeleton css because conflicts... -->
+	<link rel="stylesheet" href="stylesheets/skeleton.min.css"/>
+	<link rel="stylesheet" href="stylesheets/style.css"/> 
+  <link rel="stylesheet" type="text/css" href="sweetalert/sweetalert.css">
 	<title>Survival of The Fittest</title>
 </head>
 <body>
@@ -68,6 +70,7 @@
 
   	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
+  <script src="sweetalert/sweetalert.min.js"></script>
 	<script src="javascripts/drawing.js"></script>
 </body>
 </html>

@@ -38,7 +38,7 @@ $(document).ready(function(){
             join();
         }
         if (event.keyCode == 9){
-            event.preventDefault()
+            event.preventDefault();
             for (var i = 0; i < $('.colourBlock').length; i++){
                 if ($('.chosenBlock')[0] === $('.colourBlock')[i]){
                     $($('.colourBlock')[(i+1)%$('.colourBlock').length]).click();
@@ -62,7 +62,7 @@ $(document).ready(function(){
         if (species.length>1){
             var newSpecies = species[0];
             $(".playerName"+newSpecies.side).text(newSpecies.username);
-            if (newSpecies.readyToPlay == false){
+            if (newSpecies.readyToPlay === false){
                 $('.waitingLabel').text(newSpecies.username +" is birthing cells..");
             }else{
                 $('.waitingLabel').text(newSpecies.username + " is ready!");
@@ -82,9 +82,9 @@ $(document).ready(function(){
                     swal({title: "Request failed.",
                        text: data.message,
                        type: "error",
-                       confirmButtonText: "Ok." 
+                       confirmButtonText: "Ok."
                     });
-                })
+                });
             }
         });
     });

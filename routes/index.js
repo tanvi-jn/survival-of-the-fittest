@@ -23,7 +23,7 @@ module.exports.getRouter = function(io){
 			socket.data.colour = data.colour;
 			socket.data.cellsLeft = initialPlacableCellAmount;
 			socket.data.readyToPlay = false;
-			if (activeRooms['room' + roomIdCount].species.length == 2 ){
+			if (activeRooms['room' + roomIdCount].species.length == activeRooms['room' + roomIdCount].capacity ){
 				activeRooms['room' + (++roomIdCount)] = generateRoom();
 			}
 			var assignedRoom = 'room' + roomIdCount;
@@ -55,10 +55,16 @@ module.exports.getRouter = function(io){
 			});
 		});
 
+		socket.on('requestPractice',function(){
+			if (activeRooms[assignedRoom].species.length <= 1){
+				activeRooms[socket.data.room].capacity = 1;
+			}
+		});
+
 		socket.on('readyToPlay',function(data){
 			if (activeRooms[socket.data.room] !== undefined){
 				if (!activeRooms[socket.data.room].lifeStarted){
-					if (copyWorldHalf(socket.data.side,activeRooms[socket.data.room].world,data.world,horizontalCellNum,verticalCellNum)){
+					if (copyPortionOfTheWorld(socket.data.side,activeRooms[socket.data.room].world,data.world,activeRooms[socket.data.room].capacity,horizontalCellNum,verticalCellNum)){
 						socket.emit('readyRequestAcepted');
 						socket.data.readyToPlay = true;
 						socket.broadcast.to(socket.data.room).emit('otherPlayerReady');
@@ -70,7 +76,7 @@ module.exports.getRouter = function(io){
 							}
 							allReadyToPlay = allReadyToPlay && activeRooms[socket.data.room].species[i].readyToPlay;
 						}
-						if (allReadyToPlay && (activeRooms[socket.data.room].species.length == 2)){
+						if (allReadyToPlay && (activeRooms[socket.data.room].species.length == activeRooms[socket.data.room].capacity)){
 							activeRooms[socket.data.room].allReadyToPlay = true;
 							activeRooms[socket.data.room].lifeStarted = true;
 							sendUpdatedWorld(socket.data.room);
@@ -84,7 +90,7 @@ module.exports.getRouter = function(io){
 	});
 
 	function generateRoom(){
-		return {species: [], world: generateBlankWorld(horizontalCellNum,verticalCellNum), allReadyToPlay: false, lifeStarted: false};
+		return {species: [], world: generateBlankWorld(horizontalCellNum,verticalCellNum),capacity: 2, allReadyToPlay: false, lifeStarted: false};
 	}
 
 	function generateBlankWorld(horizontalCellNum,verticalCellNum){
@@ -103,9 +109,9 @@ module.exports.getRouter = function(io){
 		}
 	}
 
-	function copyWorldHalf(side,originalWorld,recievedWorld,horizontalCellNum,verticalCellNum){
-		var startIndex = (side=='left')? 0 : horizontalCellNum/2;
-		var endIndex = startIndex + horizontalCellNum/2;
+	function copyPortionOfTheWorld(side,originalWorld,recievedWorld,capacity,horizontalCellNum,verticalCellNum){
+		var startIndex = (side=='left')? 0 : horizontalCellNum/capacity;
+		var endIndex = startIndex + horizontalCellNum/capacity;
 		//TODO: Do checking that they didnt place more cells then allowed
 		var totalPlaced = 0;
 		for (var i = startIndex; i < endIndex; i++){

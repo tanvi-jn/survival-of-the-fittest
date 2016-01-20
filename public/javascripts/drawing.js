@@ -70,10 +70,22 @@ $(document).ready(function(){
         }
         $("." + playerSide + "Col").append('<input class="button-primary ready" value="Ready" type="submit">');
         $(".ready").on('mousedown',function(){
-            $(this).hide();
-            $(".cellsLeft").hide();
-            if (!readyToPlay) socket.emit("readyToPlay",{world:world});
-            readyToPlay = true;
+            if (!readyToPlay) {
+                socket.emit("readyToPlay",{world:world});
+                socket.on('readyRequestAcepted',function(){
+                    console.log("Ready confirmed!");
+                    $(".ready").hide();
+                    $(".cellsLeft").hide();
+                    readyToPlay = true;
+                });
+                socket.on('readyRequestRejected',function(data){
+                    swal({title: "Request failed.",
+                       text: data.message,
+                       type: "error",
+                       confirmButtonText: "Ok." 
+                    });
+                })
+            }
         });
     });
 

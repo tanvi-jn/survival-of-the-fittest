@@ -16,6 +16,8 @@ $(document).ready(function(){
     var oponentName;
     var readyToPlay = false;
     var lifeHasBegun = false;
+    var prevMouse = {x:0, y:0, erase:false};
+    var mouseDown = false;
 
     $(".colourBlock").on('click',function(){
         $(".colourBlock").removeClass('chosenBlock');
@@ -107,7 +109,9 @@ $(document).ready(function(){
         world = data.world;
         drawFrame();
     });
-    canvas.addEventListener("mousedown", onCanvasClick, false);
+    canvas.addEventListener("mousedown", onMouseDown, false);
+    canvas.addEventListener("mousemove", onMouseMove, false);
+    canvas.addEventListener("mouseup", onMouseUp, false);
 
     function getSpecies(id){
         for (var i = 0; i < species.length; i++){
@@ -168,32 +172,52 @@ $(document).ready(function(){
     }
 //move the following code into the interface file
 
-    function onCanvasClick(e){
+    function onMouseDown(e){
+        mouseDown = true;
         var rect = canvas.getBoundingClientRect(); //dimensions of canvas
-        var mouse = {x: 0, y: 0}; //mouse click coordinates
-        mouse.x = e.clientX - rect.left; //from world coords -> canvas coords
-        mouse.y = e.clientY - rect.top;
-        //check if mouse click is within canvas, *(and on correct half of screen)
-        if (0 <= mouse.y && mouse.y <= canvH && 0 <= mouse.x && !readyToPlay){
-            if(mouse.x <= canvW/2 && playerSide==="left" || mouse.x > canvW/2 && playerSide==="right"){
-                editCell(mouse);
-            }
-        }
-        //temporary redrawing
-        drawFrame();
+        prevMouse.x = Math.floor((e.clientX - rect.left)/cellSize); //from world coords -> canvas coords
+        prevMouse.y = Math.floor((e.clientY - rect.top)/cellSize);
+        if (world[prevMouse.x][prevMouse.y]!=0) prevMouse.erase = true;
+        else prevMouse.erase = false;
     }
 
-    function editCell(mouse){
-        var x =Math.floor((mouse.x)/cellSize);
-        var y =Math.floor((mouse.y)/cellSize);
-        if (world[x][y]!==0){
-            cellsLeft++;
-            world[x][y] = 0;
-        }else if(cellsLeft>0){
-            cellsLeft--;
-            world[x][y] = playerId;
+    function onMouseUp(e){
+        editCell(e, false);
+        mouseDown = false;
+    }
+
+    function onMouseMove(e){
+        if (mouseDown){
+            editCell(e, true);
         }
-        $(".numCellsLeft").text(cellsLeft);
+    }
+
+    function editCell(e, drag){
+        var rect = canvas.getBoundingClientRect(); //dimensions of canvas
+        var mouse = {x: 0, y: 0}; //mouse click coordinates
+        mouse.x = Math.floor((e.clientX - rect.left)/cellSize); //from world coords -> canvas coords
+        mouse.y = Math.floor((e.clientY - rect.top)/cellSize);
+
+        //check if mouse drag is within canvas, on correct half of screen, and not identical to previous square
+        if (0 <= mouse.y && mouse.y <= canvH && 0 <= mouse.x && !readyToPlay){
+            if(mouse.x <= canvW/2 && playerSide==="left" || mouse.x > canvW/2 && playerSide==="right"){
+                if (!(mouse.x == prevMouse.x && mouse.y == prevMouse.y)||!drag){
+                    //editCell(mouse);
+                    if (world[mouse.x][mouse.y]!=0&&prevMouse.erase){
+                        cellsLeft++;
+                        world[mouse.x][mouse.y] = 0;
+                    }else if(cellsLeft>0&&!prevMouse.erase){
+                        cellsLeft--;
+                        world[mouse.x][mouse.y] = playerId;
+                    }
+                    $(".numCellsLeft").text(cellsLeft);
+                    drawFrame();
+                    prevMouse.x = mouse.x;
+                    prevMouse.y = mouse.y;
+                    console.log(prevMouse.erase);
+                }
+            }
+        }
     }
     //
 

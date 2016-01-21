@@ -18,6 +18,8 @@ $(document).ready(function(){
     var lifeHasBegun = false;
     var prevMouse = {x:0, y:0, erase:false};
     var mouseDown = false;
+    var capacity = 2;
+    var practiceMode = false;
 
     $(".colourBlock").on('click',function(){
         $(".colourBlock").removeClass('chosenBlock');
@@ -27,11 +29,14 @@ $(document).ready(function(){
     });
     var join = function(){
         if (playerColour !== undefined){
-            player = {username:$("#playerNameInput").val(),colour:playerColour};
-            socket.emit('joinRoom',player);
-            $(".landing").hide();
-            $('.game').show();
-            drawGrid();
+            var readName = $("#playerNameInput").val().replace(/\s+/g, '');
+            if (readName !== ""){
+                player = {username: readName,colour:playerColour};
+                socket.emit('joinRoom',player);
+                $(".landing").hide();
+                $('.game').show();
+                drawGrid();
+            }
         }
     };
     $(".join").on('mousedown',join);
@@ -40,7 +45,7 @@ $(document).ready(function(){
             join();
         }
         if (event.keyCode == 9){
-            event.preventDefault()
+            event.preventDefault();
             for (var i = 0; i < $('.colourBlock').length; i++){
                 if ($('.chosenBlock')[0] === $('.colourBlock')[i]){
                     $($('.colourBlock')[(i+1)%$('.colourBlock').length]).click();
@@ -63,31 +68,45 @@ $(document).ready(function(){
         $('.oponentOverlay').css(oponentSide, "0");
         if (species.length>1){
             var newSpecies = species[0];
+            oponentName = newSpecies.username;
             $(".playerName"+newSpecies.side).text(newSpecies.username);
-            if (newSpecies.readyToPlay == false){
+            if (newSpecies.readyToPlay === false){
                 $('.waitingLabel').text(newSpecies.username +" is birthing cells..");
             }else{
                 $('.waitingLabel').text(newSpecies.username + " is ready!");
             }
         }
         $("." + playerSide + "Col").append('<input class="button-primary ready" value="Ready" type="submit">');
+        if (species.length === 1){$("." + playerSide + "Col").append('<input class="button-primary practice" value="Practice" type="submit">');}
         $(".ready").on('mousedown',function(){
             if (!readyToPlay) {
                 socket.emit("readyToPlay",{world:world});
                 socket.on('readyRequestAcepted',function(){
-                    console.log("Ready confirmed!");
-                    $(".ready").hide();
-                    $(".cellsLeft").hide();
+                    $(".ready").remove();
+                    $(".cellsLeft").remove();
+                    $('.practice').remove();
                     readyToPlay = true;
                 });
                 socket.on('readyRequestRejected',function(data){
                     swal({title: "Request failed.",
                        text: data.message,
                        type: "error",
-                       confirmButtonText: "Ok." 
+                       confirmButtonText: "Ok."
                     });
-                })
+                });
             }
+        });
+        $(".practice").click(function(){
+            socket.emit("requestPractice");
+            socket.on("practiceStarted",function(){
+                capacity = 1;
+                practiceMode = true;
+                $('.practice').remove();
+                $('.cellsLeft').remove();
+                $('.oponentOverlay').remove();
+                $('.playerName' + ((playerSide=='left')? 'right' : 'left')).text(" ");
+                drawFrame();
+            });
         });
     });
 
@@ -95,6 +114,7 @@ $(document).ready(function(){
         species = data.species;
         var newSpecies = species[1];
         oponentName = newSpecies.username;
+        $('.practice').remove();
         $(".playerName"+newSpecies.side).text(newSpecies.username);
         $('.waitingLabel').text(newSpecies.username +" is birthing cells..");
     });
@@ -142,7 +162,7 @@ $(document).ready(function(){
             ctx.stroke();
             ctx.closePath();
         }
-        if (!lifeHasBegun){
+        if (!lifeHasBegun && !practiceMode){
             ctx.strokeStyle="#50514f";
             ctx.lineWidth= 0.5;
             ctx.beginPath();
@@ -177,7 +197,7 @@ $(document).ready(function(){
         var rect = canvas.getBoundingClientRect(); //dimensions of canvas
         prevMouse.x = Math.floor((e.clientX - rect.left)/cellSize); //from world coords -> canvas coords
         prevMouse.y = Math.floor((e.clientY - rect.top)/cellSize);
-        if (world[prevMouse.x][prevMouse.y]!=0) prevMouse.erase = true;
+        if (world[prevMouse.x][prevMouse.y]!==0) prevMouse.erase = true;
         else prevMouse.erase = false;
     }
 
@@ -200,27 +220,31 @@ $(document).ready(function(){
 
         //check if mouse drag is within canvas, on correct half of screen, and not identical to previous square
         if (0 <= mouse.y && mouse.y <= canvH && 0 <= mouse.x && !readyToPlay){
-            if(mouse.x <= canvW/2 && playerSide==="left" || mouse.x > canvW/2 && playerSide==="right"){
+            if(mouse.x <= canvW/capacity && playerSide==="left" || mouse.x > canvW/capacity && playerSide==="right"){
                 mouse.x = Math.floor((mouse.x)/cellSize); //from world coords -> canvas coords
                 mouse.y = Math.floor((mouse.y)/cellSize);
                 if (!(mouse.x == prevMouse.x && mouse.y == prevMouse.y)||!drag){
                     //editCell(mouse);
-                    if (world[mouse.x][mouse.y]!=0&&prevMouse.erase){
-                        cellsLeft++;
+                    if (world[mouse.x][mouse.y]!==0&&prevMouse.erase){
+                        if (!practiceMode){
+                            cellsLeft++;
+                        }
                         world[mouse.x][mouse.y] = 0;
                     }else if(world[mouse.x][mouse.y]==0&&cellsLeft>0&&!prevMouse.erase){
-                        cellsLeft--;
+                        if (!practiceMode){
+                            cellsLeft--;
+                        }
                         world[mouse.x][mouse.y] = playerId;
                     }
-                    $(".numCellsLeft").text(cellsLeft);
+                    if (!practiceMode){
+                        $(".numCellsLeft").text(cellsLeft);
+                    }
                     drawFrame();
                     prevMouse.x = mouse.x;
                     prevMouse.y = mouse.y;
-                    console.log(prevMouse.erase);
                 }
             }
         }
     }
-    //
 
 });

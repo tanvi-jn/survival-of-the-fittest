@@ -195,18 +195,20 @@ $(document).ready(function(){
     function editCell(e, drag){
         var rect = canvas.getBoundingClientRect(); //dimensions of canvas
         var mouse = {x: 0, y: 0}; //mouse click coordinates
-        mouse.x = Math.floor((e.clientX - rect.left)/cellSize); //from world coords -> canvas coords
-        mouse.y = Math.floor((e.clientY - rect.top)/cellSize);
+        mouse.x = e.clientX - rect.left; //from world coords -> canvas coords
+        mouse.y = e.clientY - rect.top;
 
         //check if mouse drag is within canvas, on correct half of screen, and not identical to previous square
         if (0 <= mouse.y && mouse.y <= canvH && 0 <= mouse.x && !readyToPlay){
             if(mouse.x <= canvW/2 && playerSide==="left" || mouse.x > canvW/2 && playerSide==="right"){
+                mouse.x = Math.floor((mouse.x)/cellSize); //from world coords -> canvas coords
+                mouse.y = Math.floor((mouse.y)/cellSize);
                 if (!(mouse.x == prevMouse.x && mouse.y == prevMouse.y)||!drag){
                     //editCell(mouse);
                     if (world[mouse.x][mouse.y]!=0&&prevMouse.erase){
                         cellsLeft++;
                         world[mouse.x][mouse.y] = 0;
-                    }else if(cellsLeft>0&&!prevMouse.erase){
+                    }else if(world[mouse.x][mouse.y]==0&&cellsLeft>0&&!prevMouse.erase){
                         cellsLeft--;
                         world[mouse.x][mouse.y] = playerId;
                     }

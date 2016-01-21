@@ -118,6 +118,9 @@ a {
 .readyCont{
   text-align: center;
 }
+.ready{
+  width: 127.125px;
+}
 @media (min-width: 550px){
   .two.columns {
       width: 17.3333333333%;

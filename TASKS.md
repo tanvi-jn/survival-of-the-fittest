@@ -8,5 +8,4 @@ Necessary
 
 Future features
 - [ ] petri-dishes (insert predefined or customized patterns)
-- [ ] 1P practice mode
 - [ ] different "life rules" for different species

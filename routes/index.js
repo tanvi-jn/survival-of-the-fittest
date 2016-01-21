@@ -56,15 +56,17 @@ module.exports.getRouter = function(io){
 		});
 
 		socket.on('requestPractice',function(){
-			if (activeRooms[assignedRoom].species.length <= 1){
+			if (activeRooms[socket.data.room].species.length <= 1){
 				activeRooms[socket.data.room].capacity = 1;
+				activeRooms[socket.data.room].practiceMode = true;
+				socket.emit('practiceStarted');
 			}
 		});
 
 		socket.on('readyToPlay',function(data){
 			if (activeRooms[socket.data.room] !== undefined){
 				if (!activeRooms[socket.data.room].lifeStarted){
-					if (copyPortionOfTheWorld(socket.data.side,activeRooms[socket.data.room].world,data.world,activeRooms[socket.data.room].capacity,horizontalCellNum,verticalCellNum)){
+					if (copyPortionOfTheWorld(socket.data.side,activeRooms[socket.data.room].world,data.world,activeRooms[socket.data.room].capacity,activeRooms[socket.data.room].practiceMode,horizontalCellNum,verticalCellNum)){
 						socket.emit('readyRequestAcepted');
 						socket.data.readyToPlay = true;
 						socket.broadcast.to(socket.data.room).emit('otherPlayerReady');
@@ -90,7 +92,7 @@ module.exports.getRouter = function(io){
 	});
 
 	function generateRoom(){
-		return {species: [], world: generateBlankWorld(horizontalCellNum,verticalCellNum),capacity: 2, allReadyToPlay: false, lifeStarted: false};
+		return {species: [], world: generateBlankWorld(horizontalCellNum,verticalCellNum),capacity: 2,practiceMode: false, allReadyToPlay: false, lifeStarted: false};
 	}
 
 	function generateBlankWorld(horizontalCellNum,verticalCellNum){
@@ -109,7 +111,7 @@ module.exports.getRouter = function(io){
 		}
 	}
 
-	function copyPortionOfTheWorld(side,originalWorld,recievedWorld,capacity,horizontalCellNum,verticalCellNum){
+	function copyPortionOfTheWorld(side,originalWorld,recievedWorld,capacity,practiceMode,horizontalCellNum,verticalCellNum){
 		var startIndex = (side=='left')? 0 : horizontalCellNum/capacity;
 		var endIndex = startIndex + horizontalCellNum/capacity;
 		//TODO: Do checking that they didnt place more cells then allowed
@@ -119,7 +121,7 @@ module.exports.getRouter = function(io){
 				totalPlaced += (recievedWorld[i][j] === 0)? 0 : 1;
 			}
 		}
-		if (totalPlaced > initialPlacableCellAmount){return false;}
+		if (totalPlaced > initialPlacableCellAmount && !practiceMode){return false;}
 		for (var i = startIndex; i < endIndex; i++){
 			for (var j = 0; j < verticalCellNum;j++){
 				originalWorld[i][j] = recievedWorld[i][j];

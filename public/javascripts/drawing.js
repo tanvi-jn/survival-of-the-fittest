@@ -105,6 +105,7 @@ $(document).ready(function(){
                 $('.cellsLeft').remove();
                 $('.oponentOverlay').remove();
                 $('.playerName' + ((playerSide=='left')? 'right' : 'left')).text(" ");
+                drawFrame();
             });
         });
     });
@@ -161,7 +162,7 @@ $(document).ready(function(){
             ctx.stroke();
             ctx.closePath();
         }
-        if (!lifeHasBegun){
+        if (!lifeHasBegun && !practiceMode){
             ctx.strokeStyle="#50514f";
             ctx.lineWidth= 0.5;
             ctx.beginPath();
@@ -196,7 +197,7 @@ $(document).ready(function(){
         var rect = canvas.getBoundingClientRect(); //dimensions of canvas
         prevMouse.x = Math.floor((e.clientX - rect.left)/cellSize); //from world coords -> canvas coords
         prevMouse.y = Math.floor((e.clientY - rect.top)/cellSize);
-        if (world[prevMouse.x][prevMouse.y]!=0) prevMouse.erase = true;
+        if (world[prevMouse.x][prevMouse.y]!==0) prevMouse.erase = true;
         else prevMouse.erase = false;
     }
 
@@ -222,7 +223,7 @@ $(document).ready(function(){
             if(mouse.x <= canvW/capacity && playerSide==="left" || mouse.x > canvW/capacity && playerSide==="right"){
                 if (!(mouse.x == prevMouse.x && mouse.y == prevMouse.y)||!drag){
                     //editCell(mouse);
-                    if (world[mouse.x][mouse.y]!=0&&prevMouse.erase){
+                    if (world[mouse.x][mouse.y]!==0&&prevMouse.erase){
                         if (!practiceMode){
                             cellsLeft++;
                         }
@@ -239,11 +240,9 @@ $(document).ready(function(){
                     drawFrame();
                     prevMouse.x = mouse.x;
                     prevMouse.y = mouse.y;
-                    console.log(prevMouse.erase);
                 }
             }
         }
     }
-    //
 
 });

@@ -12,7 +12,7 @@ module.exports.getRouter = function(io){
 	var userCount = 1;
 	var horizontalCellNum = 70;
 	var verticalCellNum = 50;
-	var initialPlacableCellAmount = 30;
+	var initialPlacableCellAmount = 100;
 	var activeRooms = {'room0': generateRoom() };
 
 	io.sockets.on('connection', function(socket){
